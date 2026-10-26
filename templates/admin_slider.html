@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Quản lý Slider{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản lý</h3>
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/settings">⚙️ Cấu hình</a>
+        <a href="/admin/sliders" class="active">🖼️ Slider</a>
+        <a href="/admin/projects">🏢 Dự án</a>
+        <a href="/admin/contacts">📬 Liên hệ</a>
+        <a href="/products">📦 Sản phẩm</a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="/admin/users">👥 Người dùng</a>
+        {% endif %}
+        <a href="/admin/activity">📋 Hoạt động</a>
+        <a href="/admin/change_password">🔐 Đổi mật khẩu</a>
+    </aside>
+
+    <div class="admin-content">
+        <div class="admin-page-header">
+            <h1>🖼️ Quản lý Slider trang chủ</h1>
+        </div>
+
+        <div class="card-form" style="margin-bottom:30px;">
+            <h3 style="margin-bottom:15px;">➕ Thêm ảnh slider mới</h3>
+            <form method="POST" action="/admin/sliders/add" enctype="multipart/form-data">
+                <div class="gallery-dropzone" id="slideDropzone">
+                    <input type="file" name="files" id="slideInput" accept="image/*" multiple hidden>
+                    <div class="gallery-hint">
+                        <div class="dropzone-icon">🖼️</div>
+                        <p><strong>Kéo & thả nhiều ảnh</strong> hoặc <span class="link">chọn nhiều file</span></p>
+                        <small>Kích thước khuyến nghị: 1920x800px</small>
+                    </div>
+                </div>
+                <div class="gallery-preview" id="slidePreview"></div>
+                <div class="form-actions" style="margin-top:15px;">
+                    <button type="submit" class="btn btn-primary">Upload slider</button>
+                </div>
+            </form>
+        </div>
+
+        {% if sliders %}
+        <h3 style="margin-bottom:15px;">Ảnh hiện tại ({{ sliders|length }})</h3>
+        <div class="slider-admin-grid">
+            {% for s in sliders %}
+            <div class="slider-admin-card {% if not s.is_active %}inactive{% endif %}">
+                <img src="{{ url_for('static', filename='uploads/' + s.filename) }}" alt="">
+                <form method="POST" action="/admin/sliders/{{ s.id }}/edit" class="slider-admin-info">
+                    <input type="text" name="title" value="{{ s.title or '' }}" placeholder="Tiêu đề">
+                    <input type="text" name="subtitle" value="{{ s.subtitle or '' }}" placeholder="Mô tả ngắn">
+                    <input type="text" name="link" value="{{ s.link or '' }}" placeholder="Link khi click">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+                        <input type="checkbox" name="is_active" {% if s.is_active %}checked{% endif %}>
+                        Hiển thị
+                    </label>
+                    <div class="slider-admin-actions" style="margin-top:10px;">
+                        <button type="submit" class="btn btn-primary btn-sm">💾 Lưu</button>
+                </form>
+                        <form method="POST" action="/admin/sliders/{{ s.id }}/delete" style="display:inline;"
+                              onsubmit="return confirm('Xóa ảnh này?')">
+                            <button type="submit" class="btn btn-danger btn-sm">🗑️ Xóa</button>
+                        </form>
+                    </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Chưa có ảnh slider nào. Hãy upload ảnh đầu tiên!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dz = document.getElementById('slideDropzone');
+const inp = document.getElementById('slideInput');
+const pv = document.getElementById('slidePreview');
+
+if (dz) {
+    dz.addEventListener('click', () => inp.click());
+    inp.addEventListener('change', (e) => previewFiles(e.target.files));
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('dragover'); }));
+    dz.addEventListener('drop', e => {
+        const dt = new DataTransfer();
+        for (const f of e.dataTransfer.files) dt.items.add(f);
+        inp.files = dt.files;
+        previewFiles(inp.files);
+    });
+}
+
+function previewFiles(files) {
+    pv.innerHTML = '';
+    for (const f of files) {
+        const reader = new FileReader();
+        const div = document.createElement('div');
+        div.className = 'gallery-preview-item';
+        reader.onload = e => { div.innerHTML = `<img src="${e.target.result}">`; };
+        reader.readAsDataURL(f);
+        pv.appendChild(div);
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Quản lý dự án{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản lý</h3>
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/settings">⚙️ Cấu hình</a>
+        <a href="/admin/sliders">🖼️ Slider</a>
+        <a href="/admin/projects" class="active">🏢 Dự án</a>
+        <a href="/admin/contacts">📬 Liên hệ</a>
+        <a href="/products">📦 Sản phẩm</a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="/admin/users">👥 Người dùng</a>
+        {% endif %}
+        <a href="/admin/activity">📋 Hoạt động</a>
+        <a href="/admin/change_password">🔐 Đổi mật khẩu</a>
+    </aside>
+
+    <div class="admin-content">
+        <div class="admin-page-header">
+            <h1>🏢 Quản lý dự án</h1>
+            <a href="/admin/projects/add" class="btn btn-primary">+ Thêm dự án</a>
+        </div>
+
+        {% if projects %}
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ảnh</th><th>Tiêu đề</th><th>Danh mục</th>
+                        <th>Vị trí</th><th>Năm</th><th>Nổi bật</th><th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in projects %}
+                    <tr>
+                        <td>
+                            {% if p.cover_image %}
+                                <img src="{{ url_for('static', filename='uploads/' + p.cover_image) }}" class="thumb">
+                            {% else %}
+                                <div style="width:60px;height:60px;background:#f1f5f9;border-radius:8px;"></div>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ p.title }}</strong></td>
+                        <td>{{ p.category or '—' }}</td>
+                        <td>{{ p.location or '—' }}</td>
+                        <td>{{ p.year or '—' }}</td>
+                        <td>{% if p.is_featured %}⭐{% else %}—{% endif %}</td>
+                        <td style="display:flex;gap:5px;">
+                            <a href="{{ url_for('project_detail', id=p.id) }}" target="_blank"
+                               class="btn btn-sm" style="background:#dbeafe;color:#1e40af;">👁️</a>
+                            <a href="/admin/projects/{{ p.id }}/edit"
+                               class="btn btn-sm" style="background:#fef3c7;color:#92400e;">✏️</a>
+                            <form method="POST" action="/admin/projects/{{ p.id }}/delete"
+                                  style="display:inline;" onsubmit="return confirm('Xóa dự án này?')">
+                                <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Chưa có dự án nào. <a href="/admin/projects/add">Thêm dự án đầu tiên</a></p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập Admin{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-box">
+        <div class="login-header">
+            <div class="login-icon">🔒</div>
+            <h1>Đăng nhập Admin</h1>
+            <p>Vui lòng đăng nhập để quản trị website</p>
+        </div>
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label>Tên đăng nhập</label>
+                <input type="text" name="username" required autofocus placeholder="Nhập tên đăng nhập">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" name="password" required placeholder="Nhập mật khẩu">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">ĐĂNG NHẬP</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

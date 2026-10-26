@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Thêm dự án{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản lý</h3>
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/settings">⚙️ Cấu hình</a>
+        <a href="/admin/sliders">🖼️ Slider</a>
+        <a href="/admin/projects" class="active">🏢 Dự án</a>
+        <a href="/admin/contacts">📬 Liên hệ</a>
+        <a href="/products">📦 Sản phẩm</a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="/admin/users">👥 Người dùng</a>
+        {% endif %}
+        <a href="/admin/activity">📋 Hoạt động</a>
+        <a href="/admin/change_password">🔐 Đổi mật khẩu</a>
+    </aside>
+
+    <div class="admin-content">
+        <div class="admin-page-header">
+            <h1>➕ Thêm dự án mới</h1>
+            <a href="/admin/projects" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;">← Quay lại</a>
+        </div>
+
+        <form method="POST" class="form card-form">
+            <div class="form-group">
+                <label>Tiêu đề dự án *</label>
+                <input type="text" name="title" required placeholder="VD: Chung cư Vinhomes Grand Park">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group"><label>Chủ đầu tư</label><input type="text" name="client" placeholder="VD: Vingroup"></div>
+                <div class="form-group"><label>Địa điểm</label><input type="text" name="location" placeholder="VD: Quận 9, TP.HCM"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group"><label>Năm hoàn thành</label><input type="text" name="year" placeholder="VD: 2023"></div>
+                <div class="form-group">
+                    <label>Danh mục</label>
+                    <select name="category">
+                        <option value="Chung cư">Chung cư</option>
+                        <option value="Khách sạn">Khách sạn</option>
+                        <option value="Tòa nhà văn phòng">Tòa nhà văn phòng</option>
+                        <option value="Bệnh viện">Bệnh viện</option>
+                        <option value="Trung tâm thương mại">Trung tâm thương mại</option>
+                        <option value="Nhà ở gia đình">Nhà ở gia đình</option>
+                        <option value="Nhà máy">Nhà máy</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Mô tả ngắn</label>
+                <input type="text" name="short_description" placeholder="Mô tả 1-2 câu" maxlength="300">
+            </div>
+
+            <div class="form-group">
+                <label>Nội dung chi tiết (HTML)</label>
+                <textarea name="content" rows="10" placeholder="<p>Mô tả chi tiết dự án...</p>"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>🖼️ Ảnh đại diện dự án</label>
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <input type="hidden" name="cover_image_filename" id="imageFilename">
+                    <div class="dropzone-content" id="dropzoneContent">
+                        <div class="dropzone-icon">📤</div>
+                        <p><strong>Kéo & thả ảnh</strong> hoặc <span class="link">chọn từ máy</span></p>
+                    </div>
+                    <div class="dropzone-preview" id="dropzonePreview" style="display:none;">
+                        <img id="previewImg" alt="preview">
+                        <div class="preview-actions">
+                            <button type="button" class="btn-crop" id="btnCrop">✂️ Crop</button>
+                            <button type="button" class="btn-remove-img" id="removeImg">✕ Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📸 Gallery ảnh dự án</label>
+                <div class="gallery-dropzone" id="galleryDropzone">
+                    <input type="file" id="galleryInput" accept="image/*" multiple hidden>
+                    <div class="gallery-hint">
+                        <div class="dropzone-icon">🖼️</div>
+                        <p><strong>Kéo & thả nhiều ảnh</strong> hoặc <span class="link">chọn nhiều file</span></p>
+                    </div>
+                </div>
+                <div class="gallery-preview" id="galleryPreview"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Thứ tự hiển thị</label>
+                    <input type="number" name="sort_order" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <label class="checkbox-group">
+                        <input type="checkbox" name="is_featured">
+                        ⭐ Đánh dấu nổi bật (hiện ở trang chủ)
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Lưu dự án</button>
+                <a href="/admin/projects" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="cropModal" class="crop-modal">
+    <div class="crop-modal-content">
+        <div class="crop-modal-header">
+            <h2>✂️ Crop ảnh</h2>
+            <button type="button" class="crop-close" id="cropClose">✕</button>
+        </div>
+        <div class="crop-container"><img id="cropImage" alt="crop"></div>
+        <div class="crop-controls">
+            <div class="crop-ratios">
+                <button type="button" class="ratio-btn" data-ratio="NaN">Tự do</button>
+                <button type="button" class="ratio-btn active" data-ratio="1.7777">16:9</button>
+                <button type="button" class="ratio-btn" data-ratio="1.3333">4:3</button>
+                <button type="button" class="ratio-btn" data-ratio="1">1:1</button>
+            </div>
+            <div class="crop-actions">
+                <button type="button" class="btn btn-outline" id="cropCancel" style="color:#dc2626;border-color:#dc2626;">Hủy</button>
+                <button type="button" class="btn btn-primary" id="cropApply">✂️ Crop & Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.crop-modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.85);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.crop-modal.show{display:flex}
+.crop-modal-content{background:#fff;border-radius:16px;width:100%;max-width:900px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
+.crop-modal-header{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid #e2e8f0}
+.crop-close{background:none;border:none;font-size:22px;cursor:pointer;width:36px;height:36px;border-radius:8px}
+.crop-container{flex:1;min-height:300px;max-height:60vh;background:#0f172a;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.crop-container img{max-width:100%;max-height:100%}
+.crop-controls{padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;background:#f8fafc;border-top:1px solid #e2e8f0}
+.crop-ratios,.crop-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ratio-btn{background:#fff;border:2px solid #e2e8f0;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.ratio-btn.active{background:#dc2626;color:#fff;border-color:#dc2626}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+{% endblock %}

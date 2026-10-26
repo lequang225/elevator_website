@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Lịch sử hoạt động{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="admin-page-header">
+            <div>
+                <h1>📊 Lịch sử hoạt động</h1>
+                <p style="color:#64748b;margin-top:6px;">
+                    {% if session.admin_role == 'superadmin' %}Toàn bộ hệ thống{% else %}Hoạt động của bạn{% endif %}
+                </p>
+            </div>
+            <a href="/admin" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;">← Dashboard</a>
+        </div>
+
+        <div class="admin-stats">
+            <div class="admin-stat-card">
+                <div class="stat-icon">📋</div>
+                <div><h3>{{ total_logs }}</h3><p>Tổng hoạt động</p></div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon">📅</div>
+                <div><h3>{{ today_logs }}</h3><p>Hôm nay</p></div>
+            </div>
+        </div>
+
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Thời gian</th><th>User</th><th>Hành động</th>
+                        <th>Đối tượng</th><th>Mô tả</th><th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td style="font-family:monospace;font-size:12px;color:#64748b;">
+                            {{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}
+                        </td>
+                        <td><strong>{{ log.username or '—' }}</strong></td>
+                        <td>
+                            {% set am = {'login':('🔓','login'),'logout':('🔒','logout'),'create':('➕','create'),'update':('✏️','update'),'delete':('🗑️','delete')} %}
+                            {% set icon, cls = am.get(log.action, ('•','')) %}
+                            <span class="action-badge action-{{ cls }}">{{ icon }} {{ log.action }}</span>
+                        </td>
+                        <td>
+                            {% if log.target_type %}<code>{{ log.target_type }}{% if log.target_id %}#{{ log.target_id }}{% endif %}</code>{% else %}—{% endif %}
+                        </td>
+                        <td>{{ log.description or '—' }}</td>
+                        <td style="font-family:monospace;font-size:12px;">{{ log.ip_address or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not logs %}
+                    <tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">Chưa có hoạt động nào</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

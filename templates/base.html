@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ settings.company_name }}{% endblock %}</title>
+
+    {% if settings.favicon %}
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='uploads/' + settings.favicon) }}">
+    {% elif settings.logo %}
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='uploads/' + settings.logo) }}">
+    {% endif %}
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        :root {
+            --primary: {{ settings.primary_color }};
+            --primary-dark: {{ settings.primary_dark_color }};
+            --topbar-bg: {{ settings.topbar_bg_color }};
+            --topbar-text: {{ settings.topbar_text_color }};
+            --topbar-accent: {{ settings.topbar_accent_color }};
+            --nav-bg: {{ settings.nav_bg_color }};
+            --nav-text: {{ settings.nav_text_color }};
+            --nav-hover-bg: {{ settings.nav_hover_bg_color }};
+            --footer-bg: {{ settings.footer_bg_color }};
+            --footer-text: {{ settings.footer_text_color }};
+            --body-bg: {{ settings.body_bg_color }};
+            --text-color: {{ settings.text_color }};
+        }
+        body { background: var(--body-bg); color: var(--text-color); }
+    </style>
+</head>
+<body class="{% if session.admin_logged_in %}is-admin{% endif %}">
+
+    <div class="header-wrapper">
+        <div class="topbar">
+            <div class="container topbar-inner">
+                
+                <a href="/" class="logo-block">
+                    {% if settings.logo %}
+                        <img src="{{ url_for('static', filename='uploads/' + settings.logo) }}" alt="{{ settings.company_name }}">
+                    {% else %}
+                        <div class="logo-fallback">
+                            <span class="brand-name">{{ settings.company_name }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if settings.logo_text %}
+                        <span class="logo-text">{{ settings.logo_text }}</span>
+                    {% endif %}
+                </a>
+
+                <div class="topbar-info">
+                    <div class="info-item">
+                        <div class="info-icon">📞</div>
+                        <div class="info-text">
+                            <small>Hotline</small>
+                            <strong>{{ settings.hotline }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">✉️</div>
+                        <div class="info-text">
+                            <small>Email</small>
+                            <strong>{{ settings.email }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/contact" class="btn-cta">{{ settings.cta_text }}</a>
+                <button type="button" class="nav-toggle" onclick="document.getElementById('navMenu').classList.toggle('show')">☰</button>
+
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <div class="container nav-inner">
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Trang chủ</a></li>
+                    <li><a href="/#about">Giới thiệu</a></li>
+                    
+                    <li class="has-dropdown">
+                        <a href="/products" class="{% if '/product' in request.path %}active{% endif %}">
+                            Sản phẩm <span style="font-size:10px;">▼</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/products">Tất cả sản phẩm</a></li>
+                            <li><a href="/products">Thang máy gia đình</a></li>
+                            <li><a href="/products">Thang máy tải khách</a></li>
+                            <li><a href="/products">Thang máy tải hàng</a></li>
+                            <li><a href="/products">Thang cuốn</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="/projects" class="{% if '/project' in request.path %}active{% endif %}">Dự án</a></li>
+                    <li><a href="/contact" class="{% if '/contact' in request.path %}active{% endif %}">Liên hệ</a></li>
+                    
+                    {% if session.admin_logged_in %}
+                    <li><a href="/admin" style="background:rgba(0,0,0,0.2);">⚙️ Admin</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="flash flash-{{ category }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <div class="floating-contact">
+        <a href="tel:{{ settings.hotline|replace(' ','') }}" class="float-btn float-phone" title="Gọi điện">📞</a>
+        {% if settings.zalo_url %}
+        <a href="{{ settings.zalo_url }}" target="_blank" class="float-btn float-zalo" title="Zalo">Zalo</a>
+        {% endif %}
+        {% if settings.messenger_url %}
+        <a href="{{ settings.messenger_url }}" target="_blank" class="float-btn float-messenger" title="Messenger">💬</a>
+        {% endif %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4>{{ settings.company_name }}</h4>
+                    <p>{{ settings.about_text[:150] }}{% if settings.about_text|length > 150 %}...{% endif %}</p>
+                    <div class="footer-social">
+                        {% if settings.facebook_url %}<a href="{{ settings.facebook_url }}" target="_blank">f</a>{% endif %}
+                        {% if settings.youtube_url %}<a href="{{ settings.youtube_url }}" target="_blank">▶</a>{% endif %}
+                        {% if settings.zalo_url %}<a href="{{ settings.zalo_url }}" target="_blank" style="font-size:11px;font-weight:700;">Zalo</a>{% endif %}
+                    </div>
+                </div>
+                <div>
+                    <h4>Liên kết</h4>
+                    <a href="/">Trang chủ</a>
+                    <a href="/products">Sản phẩm</a>
+                    <a href="/projects">Dự án</a>
+                    <a href="/contact">Liên hệ</a>
+                    {% if session.admin_logged_in %}
+                        <a href="/logout" style="color:#fbbf24;margin-top:10px;display:block;">Đăng xuất ({{ session.admin_username }})</a>
+                    {% else %}
+                        <a href="/login" style="color:#94a3b8;margin-top:10px;display:block;">Đăng nhập</a>
+                    {% endif %}
+                </div>
+                <div>
+                    <h4>Sản phẩm</h4>
+                    <a href="/products">Thang máy gia đình</a>
+                    <a href="/products">Thang máy tải khách</a>
+                    <a href="/products">Thang máy tải hàng</a>
+                    <a href="/products">Thang cuốn</a>
+                </div>
+                <div>
+                    <h4>Liên hệ</h4>
+                    <p>📍 {{ settings.address }}</p>
+                    <p>📞 {{ settings.hotline }}</p>
+                    <p>✉️ {{ settings.email }}</p>
+                    <p>🕐 {{ settings.working_hours }}</p>
+                </div>
+            </div>
+            <div class="copyright">© 2024 {{ settings.company_name }}. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <div id="toast"></div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

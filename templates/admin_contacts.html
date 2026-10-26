@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Quản lý liên hệ{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản lý</h3>
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/settings">⚙️ Cấu hình</a>
+        <a href="/admin/sliders">🖼️ Slider</a>
+        <a href="/admin/projects">🏢 Dự án</a>
+        <a href="/admin/contacts" class="active">📬 Liên hệ</a>
+        <a href="/products">📦 Sản phẩm</a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="/admin/users">👥 Người dùng</a>
+        {% endif %}
+        <a href="/admin/activity">📋 Hoạt động</a>
+        <a href="/admin/change_password">🔐 Đổi mật khẩu</a>
+    </aside>
+
+    <div class="admin-content">
+        <div class="admin-page-header">
+            <h1>📬 Tin nhắn liên hệ</h1>
+        </div>
+
+        {% if contacts %}
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Thời gian</th><th>Họ tên</th><th>Email</th>
+                        <th>Điện thoại</th><th>Nội dung</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in contacts %}
+                    <tr id="contact-{{ c.id }}">
+                        <td style="font-size:12px;color:#64748b;">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td><strong>{{ c.name }}</strong></td>
+                        <td><a href="mailto:{{ c.email }}">{{ c.email }}</a></td>
+                        <td>{{ c.phone or '—' }}</td>
+                        <td style="max-width:400px;">{{ c.message }}</td>
+                        <td>
+                            <button onclick="deleteContact({{ c.id }})" class="btn btn-sm btn-danger">🗑️</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Chưa có tin nhắn nào.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function deleteContact(id) {
+    if (!confirm('Xóa tin nhắn này?')) return;
+    const res = await fetch(`/api/contact/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+        document.getElementById(`contact-${id}`).remove();
+        showToast('✅ Đã xóa tin nhắn');
+    }
+}
+</script>
+{% endblock %}

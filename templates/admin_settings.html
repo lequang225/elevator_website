@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+{% block title %}Cấu hình website{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản lý</h3>
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/settings" class="active">⚙️ Cấu hình</a>
+        <a href="/admin/sliders">🖼️ Slider</a>
+        <a href="/admin/projects">🏢 Dự án</a>
+        <a href="/admin/contacts">📬 Liên hệ</a>
+        <a href="/products">📦 Sản phẩm</a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="/admin/users">👥 Người dùng</a>
+        {% endif %}
+        <a href="/admin/activity">📋 Hoạt động</a>
+        <a href="/admin/change_password">🔐 Đổi mật khẩu</a>
+    </aside>
+
+    <div class="admin-content">
+        <div class="admin-page-header">
+            <h1>⚙️ Cấu hình Website</h1>
+        </div>
+
+        <div class="admin-notice">
+            💡 Thay đổi màu sắc sẽ được xem trước trực tiếp. Nhấn <strong>💾 Lưu cấu hình</strong> để áp dụng vĩnh viễn.
+        </div>
+
+        <!-- LIVE PREVIEW (Đã được sửa lỗi giao diện) -->
+        <div class="live-preview" style="background: #fff; padding: 20px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+            <h3 style="font-size: 14px; margin-bottom: 15px; color: #64748b; text-transform: uppercase;">👁️ Xem trước</h3>
+            
+            <div class="preview-topbar" id="previewTopbar" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                <div class="p-logo" id="previewLogo" style="font-weight: 900; font-size: 20px;">{{ settings.company_name }}</div>
+                <div class="p-info" style="display: flex; gap: 15px; font-size: 13px;">
+                    <span>📞 <span id="previewHotline">{{ settings.hotline }}</span></span>
+                    <span>✉️ <span id="previewEmail">{{ settings.email }}</span></span>
+                </div>
+            </div>
+            
+            <div class="preview-nav" id="previewNav" style="display: flex; gap: 0; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
+                <div style="padding: 10px 20px; font-weight: 700; text-transform: uppercase; font-size: 13px; border-right: 1px solid rgba(255,255,255,0.1);">Trang chủ</div>
+                <div style="padding: 10px 20px; font-weight: 700; text-transform: uppercase; font-size: 13px; border-right: 1px solid rgba(255,255,255,0.1);">Sản phẩm</div>
+                <div style="padding: 10px 20px; font-weight: 700; text-transform: uppercase; font-size: 13px; border-right: 1px solid rgba(255,255,255,0.1);">Dự án</div>
+                <div style="padding: 10px 20px; font-weight: 700; text-transform: uppercase; font-size: 13px;">Liên hệ</div>
+            </div>
+            
+            <div>
+                <span class="preview-btn" id="previewBtn" style="display: inline-block; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 14px;">{{ settings.cta_text }}</span>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="form card-form" action="{{ url_for('admin_settings') }}">
+
+            <!-- ==================== MÀU SẮC ==================== -->
+            <div class="color-section">
+                <h2>🎨 Bảng màu giao diện</h2>
+                <p class="desc">Chọn màu hoặc nhập mã HEX để tùy chỉnh toàn bộ website</p>
+
+                <h3 style="font-size:14px;margin-bottom:10px;color:#64748b;">⭐ Chủ đề có sẵn</h3>
+                <div class="theme-presets">
+                    <button type="button" class="theme-preset" data-theme='{"primary_color":"#dc2626","primary_dark_color":"#b91c1c","topbar_bg_color":"#ffffff","topbar_text_color":"#0f172a","topbar_accent_color":"#dc2626","nav_bg_color":"#dc2626","nav_text_color":"#ffffff","nav_hover_bg_color":"rgba(0,0,0,0.15)","footer_bg_color":"#0f172a","footer_text_color":"#cbd5e1","body_bg_color":"#ffffff","text_color":"#0f172a"}'>
+                        <div class="preset-colors"><span class="preset-color-dot" style="background:#dc2626;"></span><span class="preset-color-dot" style="background:#0f172a;"></span></div>
+                        Đỏ truyền thống
+                    </button>
+                    <button type="button" class="theme-preset" data-theme='{"primary_color":"#2563eb","primary_dark_color":"#1d4ed8","topbar_bg_color":"#ffffff","topbar_text_color":"#0f172a","topbar_accent_color":"#2563eb","nav_bg_color":"#1e40af","nav_text_color":"#ffffff","nav_hover_bg_color":"rgba(0,0,0,0.2)","footer_bg_color":"#0f172a","footer_text_color":"#cbd5e1","body_bg_color":"#ffffff","text_color":"#0f172a"}'>
+                        <div class="preset-colors"><span class="preset-color-dot" style="background:#2563eb;"></span><span class="preset-color-dot" style="background:#1e40af;"></span></div>
+                        Xanh dương
+                    </button>
+                    <button type="button" class="theme-preset" data-theme='{"primary_color":"#059669","primary_dark_color":"#047857","topbar_bg_color":"#ffffff","topbar_text_color":"#0f172a","topbar_accent_color":"#059669","nav_bg_color":"#065f46","nav_text_color":"#ffffff","nav_hover_bg_color":"rgba(0,0,0,0.2)","footer_bg_color":"#0f172a","footer_text_color":"#cbd5e1","body_bg_color":"#ffffff","text_color":"#0f172a"}'>
+                        <div class="preset-colors"><span class="preset-color-dot" style="background:#059669;"></span><span class="preset-color-dot" style="background:#065f46;"></span></div>
+                        Xanh lá
+                    </button>
+                    <button type="button" class="theme-preset" data-theme='{"primary_color":"#ea580c","primary_dark_color":"#c2410c","topbar_bg_color":"#ffffff","topbar_text_color":"#0f172a","topbar_accent_color":"#ea580c","nav_bg_color":"#9a3412","nav_text_color":"#ffffff","nav_hover_bg_color":"rgba(0,0,0,0.2)","footer_bg_color":"#0f172a","footer_text_color":"#cbd5e1","body_bg_color":"#ffffff","text_color":"#0f172a"}'>
+                        <div class="preset-colors"><span class="preset-color-dot" style="background:#ea580c;"></span><span class="preset-color-dot" style="background:#9a3412;"></span></div>
+                        Cam đất
+                    </button>
+                    <button type="button" class="theme-preset" data-theme='{"primary_color":"#7c3aed","primary_dark_color":"#6d28d9","topbar_bg_color":"#ffffff","topbar_text_color":"#0f172a","topbar_accent_color":"#7c3aed","nav_bg_color":"#5b21b6","nav_text_color":"#ffffff","nav_hover_bg_color":"rgba(0,0,0,0.2)","footer_bg_color":"#1e1b4b","footer_text_color":"#c7d2fe","body_bg_color":"#ffffff","text_color":"#0f172a"}'>
+                        <div class="preset-colors"><span class="preset-color-dot" style="background:#7c3aed;"></span><span class="preset-color-dot" style="background:#5b21b6;"></span></div>
+                        Tím sang trọng
+                    </button>
+                    <button type="button" class="theme-preset" data-theme='{"primary_color":"#0f172a","primary_dark_color":"#020617","topbar_bg_color":"#ffffff","topbar_text_color":"#0f172a","topbar_accent_color":"#0f172a","nav_bg_color":"#0f172a","nav_text_color":"#ffffff","nav_hover_bg_color":"rgba(255,255,255,0.1)","footer_bg_color":"#020617","footer_text_color":"#cbd5e1","body_bg_color":"#ffffff","text_color":"#0f172a"}'>
+                        <div class="preset-colors"><span class="preset-color-dot" style="background:#0f172a;"></span><span class="preset-color-dot" style="background:#020617;"></span></div>
+                        Đen minimal
+                    </button>
+                </div>
+
+                <div class="color-grid" id="colorGrid">
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.primary_color }};">
+                            <input type="color" name="primary_color" value="{{ settings.primary_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Màu chủ đạo</label>
+                            <small>Nút, link, hover</small>
+                            <input type="text" value="{{ settings.primary_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.primary_dark_color }};">
+                            <input type="color" name="primary_dark_color" value="{{ settings.primary_dark_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Màu chủ đạo đậm</label>
+                            <small>Trạng thái hover</small>
+                            <input type="text" value="{{ settings.primary_dark_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.topbar_bg_color }};">
+                            <input type="color" name="topbar_bg_color" value="{{ settings.topbar_bg_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Nền Topbar</label>
+                            <small>Thanh trên cùng</small>
+                            <input type="text" value="{{ settings.topbar_bg_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.topbar_text_color }};">
+                            <input type="color" name="topbar_text_color" value="{{ settings.topbar_text_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Chữ Topbar</label>
+                            <small>Màu chữ hotline, email</small>
+                            <input type="text" value="{{ settings.topbar_text_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.topbar_accent_color }};">
+                            <input type="color" name="topbar_accent_color" value="{{ settings.topbar_accent_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Icon Topbar</label>
+                            <small>Màu icon và tên công ty</small>
+                            <input type="text" value="{{ settings.topbar_accent_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.nav_bg_color }};">
+                            <input type="color" name="nav_bg_color" value="{{ settings.nav_bg_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Nền Menu Nav</label>
+                            <small>Thanh menu chính</small>
+                            <input type="text" value="{{ settings.nav_bg_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.nav_text_color }};">
+                            <input type="color" name="nav_text_color" value="{{ settings.nav_text_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Chữ Menu Nav</label>
+                            <small>Màu chữ các mục menu</small>
+                            <input type="text" value="{{ settings.nav_text_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.footer_bg_color }};">
+                            <input type="color" name="footer_bg_color" value="{{ settings.footer_bg_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Nền Footer</label>
+                            <small>Chân trang</small>
+                            <input type="text" value="{{ settings.footer_bg_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.footer_text_color }};">
+                            <input type="color" name="footer_text_color" value="{{ settings.footer_text_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Chữ Footer</label>
+                            <small>Màu chữ chân trang</small>
+                            <input type="text" value="{{ settings.footer_text_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.body_bg_color }};">
+                            <input type="color" name="body_bg_color" value="{{ settings.body_bg_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Nền Body</label>
+                            <small>Nền trang chính</small>
+                            <input type="text" value="{{ settings.body_bg_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field">
+                        <div class="color-field-preview" style="background:{{ settings.text_color }};">
+                            <input type="color" name="text_color" value="{{ settings.text_color }}">
+                        </div>
+                        <div class="color-field-info">
+                            <label>Màu chữ chính</label>
+                            <small>Nội dung văn bản</small>
+                            <input type="text" value="{{ settings.text_color }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="color-field" style="grid-column: 1 / -1;">
+                        <div class="color-field-info" style="flex:1;">
+                            <label>Nền khi hover menu</label>
+                            <small>Dùng rgba() cho hiệu ứng trong suốt. VD: rgba(0,0,0,0.15)</small>
+                            <input type="text" name="nav_hover_bg_color" value="{{ settings.nav_hover_bg_color }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+                    <button type="button" class="btn btn-primary" onclick="saveColorPreset(event)">💾 Lưu bảng màu</button>
+                    <button type="button" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;"
+                            onclick="resetColors()">🔄 Khôi phục mặc định</button>
+                </div>
+            </div>
+
+            <hr style="margin:30px 0;border:none;border-top:2px dashed #e2e8f0;">
+
+            <!-- ==================== THÔNG TIN DOANH NGHIỆP ==================== -->
+            <h2 style="margin-bottom:15px;">🏢 Thông tin doanh nghiệp</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên doanh nghiệp *</label>
+                    <input type="text" name="company_name" id="inputCompanyName" value="{{ settings.company_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Tagline</label>
+                    <input type="text" name="company_tagline" value="{{ settings.company_tagline }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Chữ hiển thị bên cạnh Logo (để trống nếu không muốn hiện)</label>
+                <input type="text" name="logo_text" value="{{ settings.logo_text }}" placeholder="VD: ELIFT">
+            </div>
+
+            <div class="form-group">
+                <label>Logo doanh nghiệp</label>
+                {% if settings.logo %}
+                <div style="margin-bottom:10px;">
+                    <img src="{{ url_for('static', filename='uploads/' + settings.logo) }}"
+                         style="max-height:80px;background:#f8fafc;padding:10px;border-radius:8px;">
+                </div>
+                {% endif %}
+                <input type="file" name="logo_file" accept="image/*">
+                <small>PNG, JPG, SVG. Khuyến nghị 200x60px</small>
+            </div>
+
+            <div class="form-group">
+                <label>Favicon (Icon tab trình duyệt)</label>
+                <input type="file" name="favicon_file" accept="image/*">
+            </div>
+
+            <div class="form-group" style="margin-top:15px; padding-top:15px; border-top:1px dashed #e2e8f0;">
+                <label>Ảnh phần Giới thiệu (Trang chủ)</label>
+                {% if settings.about_image %}
+                <div style="margin-bottom:10px;">
+                    <img src="{{ url_for('static', filename='uploads/' + settings.about_image) }}"
+                         style="max-height:120px;background:#f8fafc;padding:10px;border-radius:8px; object-fit:cover;">
+                </div>
+                {% endif %}
+                <input type="file" name="about_image_file" accept="image/*">
+                <small>Ảnh hiển thị bên phải phần Giới thiệu. Khuyến nghị 600x400px.</small>
+            </div>
+
+            <hr style="margin:30px 0;border:none;border-top:2px dashed #e2e8f0;">
+
+            <!-- ==================== LIÊN HỆ ==================== -->
+            <h2 style="margin-bottom:15px;">📞 Thông tin liên hệ</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Hotline</label>
+                    <input type="text" name="hotline" id="inputHotline" value="{{ settings.hotline }}">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="inputEmail" value="{{ settings.email }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Địa chỉ</label>
+                <input type="text" name="address" value="{{ settings.address }}">
+            </div>
+            <div class="form-group">
+                <label>Giờ làm việc</label>
+                <input type="text" name="working_hours" value="{{ settings.working_hours }}">
+            </div>
+
+            <hr style="margin:30px 0;border:none;border-top:2px dashed #e2e8f0;">
+
+            <!-- ==================== MẠNG XÃ HỘI ==================== -->
+            <h2 style="margin-bottom:15px;">💬 Mạng xã hội</h2>
+            <div class="form-group">
+                <label>Link Facebook Page</label>
+                <input type="text" name="facebook_url" value="{{ settings.facebook_url }}" placeholder="https://facebook.com/yourpage">
+            </div>
+            <div class="form-group">
+                <label>Link Zalo</label>
+                <input type="text" name="zalo_url" value="{{ settings.zalo_url }}" placeholder="https://zalo.me/0904303668">
+                <small>Định dạng: https://zalo.me/SỐ_ĐIỆN_THOẠI</small>
+            </div>
+            <div class="form-group">
+                <label>Link Messenger</label>
+                <input type="text" name="messenger_url" value="{{ settings.messenger_url }}" placeholder="https://m.me/yourpage">
+                <small>Định dạng: https://m.me/TÊN_PAGE</small>
+            </div>
+            <div class="form-group">
+                <label>Link YouTube</label>
+                <input type="text" name="youtube_url" value="{{ settings.youtube_url }}">
+            </div>
+            <div class="form-group">
+                <label>Google Map (iframe src)</label>
+                <textarea name="google_map" rows="2">{{ settings.google_map }}</textarea>
+            </div>
+
+            <hr style="margin:30px 0;border:none;border-top:2px dashed #e2e8f0;">
+
+            <!-- ==================== NỘI DUNG TRANG CHỦ ==================== -->
+            <h2 style="margin-bottom:15px;">🏠 Nội dung trang chủ</h2>
+            <div class="form-group">
+                <label>Tiêu đề Hero</label>
+                <input type="text" name="hero_title" value="{{ settings.hero_title }}">
+            </div>
+            <div class="form-group">
+                <label>Mô tả Hero</label>
+                <textarea name="hero_subtitle" rows="2">{{ settings.hero_subtitle }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Giới thiệu công ty</label>
+                <textarea name="about_text" rows="4">{{ settings.about_text }}</textarea>
+            </div>
+
+            <h3 style="margin-top:20px;margin-bottom:10px;">Thống kê</h3>
+            <div class="form-row">
+                <div class="form-group"><label>Số liệu 1</label><input type="text" name="stat1_num" value="{{ settings.stat1_num }}"></div>
+                <div class="form-group"><label>Nhãn 1</label><input type="text" name="stat1_label" value="{{ settings.stat1_label }}"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Số liệu 2</label><input type="text" name="stat2_num" value="{{ settings.stat2_num }}"></div>
+                <div class="form-group"><label>Nhãn 2</label><input type="text" name="stat2_label" value="{{ settings.stat2_label }}"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Số liệu 3</label><input type="text" name="stat3_num" value="{{ settings.stat3_num }}"></div>
+                <div class="form-group"><label>Nhãn 3</label><input type="text" name="stat3_label" value="{{ settings.stat3_label }}"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Số liệu 4</label><input type="text" name="stat4_num" value="{{ settings.stat4_num }}"></div>
+                <div class="form-group"><label>Nhãn 4</label><input type="text" name="stat4_label" value="{{ settings.stat4_label }}"></div>
+            </div>
+
+            <hr style="margin:30px 0;border:none;border-top:2px dashed #e2e8f0;">
+
+            <h2 style="margin-bottom:15px;">🎯 Nút CTA</h2>
+            <div class="form-group">
+                <label>Nội dung nút CTA</label>
+                <input type="text" name="cta_text" id="inputCtaText" value="{{ settings.cta_text }}">
+            </div>
+
+            <!-- NÚT LƯU TOÀN BỘ -->
+            <div class="form-actions" style="margin-top:30px;padding-top:25px;border-top:2px solid #e2e8f0;">
+                <button type="submit" class="btn btn-primary" style="font-size:15px;padding:15px 40px;">
+                    💾 Lưu toàn bộ cấu hình
+                </button>
+                <a href="/" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;">
+                    👁️ Xem website
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ============================================
+// LIVE PREVIEW
+// ============================================
+const previewTopbar = document.getElementById('previewTopbar');
+const previewNav = document.getElementById('previewNav');
+const previewBtn = document.getElementById('previewBtn');
+const previewLogo = document.getElementById('previewLogo');
+const previewHotline = document.getElementById('previewHotline');
+const previewEmail = document.getElementById('previewEmail');
+
+function getColor(name) {
+    const inp = document.querySelector(`input[name="${name}"]`);
+    return inp ? inp.value : '';
+}
+
+function updatePreview() {
+    previewTopbar.style.background = getColor('topbar_bg_color');
+    previewTopbar.style.color = getColor('topbar_text_color');
+    previewLogo.style.color = getColor('topbar_accent_color');
+    previewNav.style.background = getColor('nav_bg_color');
+    previewNav.querySelectorAll('div').forEach(el => el.style.color = getColor('nav_text_color'));
+    previewBtn.style.background = getColor('primary_color');
+    previewBtn.style.color = '#fff';
+}
+
+document.querySelectorAll('input[type="color"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+        updatePreview();
+        const textInput = input.parentElement.nextElementSibling.querySelector('input[type="text"]');
+        if (textInput) textInput.value = e.target.value.toUpperCase();
+        input.parentElement.style.background = e.target.value;
+    });
+});
+
+document.getElementById('inputCompanyName')?.addEventListener('input', e => previewLogo.textContent = e.target.value || 'Tên công ty');
+document.getElementById('inputHotline')?.addEventListener('input', e => previewHotline.textContent = e.target.value);
+document.getElementById('inputEmail')?.addEventListener('input', e => previewEmail.textContent = e.target.value);
+document.getElementById('inputCtaText')?.addEventListener('input', e => previewBtn.textContent = e.target.value);
+
+// ============================================
+// THEME PRESETS
+// ============================================
+document.querySelectorAll('.theme-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+        try {
+            const theme = JSON.parse(btn.dataset.theme);
+            Object.keys(theme).forEach(key => {
+                const input = document.querySelector(`input[name="${key}"]`);
+                if (input) {
+                    input.value = theme[key];
+                    if (input.type === 'color') {
+                        const textInput = input.parentElement.nextElementSibling.querySelector('input[type="text"]');
+                        if (textInput) textInput.value = theme[key].toUpperCase();
+                        input.parentElement.style.background = theme[key];
+                    }
+                }
+            });
+            document.querySelectorAll('.theme-preset').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updatePreview();
+            showToast('🎨 Đã áp dụng chủ đề — Nhấn Lưu để giữ lại');
+        } catch (err) { console.error(err); }
+    });
+});
+
+// ============================================
+// SAVE COLOR PRESET (AJAX)
+// ============================================
+async function saveColorPreset(evt) {
+    const colorKeys = [
+        'primary_color', 'primary_dark_color',
+        'topbar_bg_color', 'topbar_text_color', 'topbar_accent_color',
+        'nav_bg_color', 'nav_text_color', 'nav_hover_bg_color',
+        'footer_bg_color', 'footer_text_color',
+        'body_bg_color', 'text_color'
+    ];
+    const data = {};
+    colorKeys.forEach(k => {
+        const inp = document.querySelector(`input[name="${k}"]`);
+        if (inp) data[k] = inp.value.trim();
+    });
+
+    const btn = evt?.target || document.querySelector('button[onclick*="saveColorPreset"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Đang lưu...';
+    }
+
+    try {
+        const res = await fetch('/api/content', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+            showToast('✅ Đã lưu bảng màu! Đang tải lại...');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast('❌ ' + (result.error || 'Lỗi khi lưu'), 'error');
+            if (btn) { btn.disabled = false; btn.textContent = '💾 Lưu bảng màu'; }
+        }
+    } catch (e) {
+        showToast('❌ Lỗi kết nối: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '💾 Lưu bảng màu'; }
+    }
+}
+
+// ============================================
+// RESET COLORS
+// ============================================
+function resetColors() {
+    if (!confirm('Khôi phục màu sắc mặc định?')) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin/settings/reset_colors';
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Khởi tạo preview
+updatePreview();
+</script>
+{% endblock %}

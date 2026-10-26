@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} - {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <div class="container">
+        <a href="/">Trang chủ</a> › <a href="/projects">Dự án</a> › <span>{{ project.title }}</span>
+    </div>
+</div>
+
+<section class="project-detail-header">
+    <div class="container">
+        {% if project.category %}
+        <span class="badge" style="background:rgba(255,255,255,0.25);color:#fff;">{{ project.category }}</span>
+        {% endif %}
+        <h1>{{ project.title }}</h1>
+        <div class="meta">
+            {% if project.client %}<span>👤 {{ project.client }}</span>{% endif %}
+            {% if project.location %}<span>📍 {{ project.location }}</span>{% endif %}
+            {% if project.year %}<span>📅 {{ project.year }}</span>{% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="project-detail-body">
+    <div class="container">
+        {% if project.cover_image %}
+        <img src="{{ url_for('static', filename='uploads/' + project.cover_image) }}"
+             alt="{{ project.title }}"
+             style="width:100%;max-height:500px;object-fit:cover;border-radius:12px;margin-bottom:40px;">
+        {% endif %}
+
+        <!-- SỬA LỖI 2 KÝ TỰ <p> Ở ĐÂY -->
+        <div class="project-detail-content">
+            {% if project.content %}
+                {# Dùng safe để render HTML, replace để dọn dẹp các thẻ <p> bị escape #}
+                {{ project.content | replace('<p>&lt;p&gt;', '<p>') | replace('&lt;/p&gt;</p>', '</p>') | safe }}
+            {% else %}
+                <p>{{ project.short_description or '' }}</p>
+            {% endif %}
+        </div>
+
+        {% if project.images %}
+        <h2 style="margin-top:50px;margin-bottom:20px;">Hình ảnh dự án</h2>
+        <div class="project-gallery">
+            {% for img in project.images %}
+            <img src="{{ url_for('static', filename='uploads/' + img.filename) }}" alt="">
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if related %}
+        <div style="margin-top:70px;">
+            <h2 style="margin-bottom:25px;">Dự án liên quan</h2>
+            <div class="projects-grid">
+                {% for p in related %}
+                <a href="{{ url_for('project_detail', id=p.id) }}" class="project-card">
+                    <div class="project-image">
+                        {% if p.cover_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + p.cover_image) }}" alt="{{ p.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="project-body">
+                        <h3>{{ p.title }}</h3>
+                        <span class="project-link">Xem chi tiết →</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

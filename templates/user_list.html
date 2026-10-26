@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="admin-page-header">
+            <div>
+                <h1>👥 Quản lý người dùng</h1>
+                <p style="color:#64748b;margin-top:6px;">Tổng cộng {{ users|length }} tài khoản</p>
+            </div>
+            <a href="/admin/users/add" class="btn btn-primary">+ Thêm người dùng</a>
+        </div>
+
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Tên ĐN</th><th>Họ tên</th><th>Email</th>
+                        <th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr class="{% if not u.is_active %}row-disabled{% endif %}">
+                        <td>#{{ u.id }}</td>
+                        <td><strong>{{ u.username }}</strong>
+                            {% if u.id == session.admin_id %}<span class="badge-you">Bạn</span>{% endif %}
+                        </td>
+                        <td>{{ u.full_name or '—' }}</td>
+                        <td>{{ u.email or '—' }}</td>
+                        <td>
+                            {% if u.role == 'superadmin' %}
+                                <span class="role-badge role-super">👑 Super Admin</span>
+                            {% else %}
+                                <span class="role-badge role-editor">✏️ Editor</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                                <span class="status-badge status-active">● Hoạt động</span>
+                            {% else %}
+                                <span class="status-badge status-locked">● Đã khóa</span>
+                            {% endif %}
+                        </td>
+                        <td style="display:flex;gap:5px;">
+                            {% if u.id != session.admin_id %}
+                                <button class="btn btn-sm" style="background:#fef3c7;color:#92400e;"
+                                        onclick="openResetModal({{ u.id }}, '{{ u.username }}')">🔑</button>
+                                <form method="POST" action="/admin/users/{{ u.id }}/toggle" style="display:inline">
+                                    <button type="submit" class="btn btn-sm" style="background:#dbeafe;color:#1e40af;">
+                                        {{ '🔒' if u.is_active else '🔓' }}
+                                    </button>
+                                </form>
+                                <form method="POST" action="/admin/users/{{ u.id }}/delete" style="display:inline"
+                                      onsubmit="return confirm('Xóa tài khoản {{ u.username }}?')">
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                                </form>
+                            {% else %}
+                                <span style="color:#94a3b8;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:20px;">
+            <a href="/admin" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;">← Dashboard</a>
+        </div>
+    </div>
+</section>
+
+<div id="resetModal" class="modal">
+    <div class="modal-content">
+        <h2>🔑 Đặt lại mật khẩu</h2>
+        <p>Tài khoản: <strong id="resetUsername"></strong></p>
+        <form method="POST" id="resetForm">
+            <div class="form-group">
+                <label>Mật khẩu mới (≥6 ký tự)</label>
+                <input type="password" name="new_password" required minlength="6">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Xác nhận</button>
+                <button type="button" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;"
+                        onclick="closeResetModal()">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openResetModal(id, username) {
+    document.getElementById('resetUsername').textContent = username;
+    document.getElementById('resetForm').action = `/admin/users/${id}/reset_password`;
+    document.getElementById('resetModal').classList.add('show');
+}
+function closeResetModal() {
+    document.getElementById('resetModal').classList.remove('show');
+}
+</script>
+{% endblock %}

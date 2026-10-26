@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}{{ settings.company_name }} - {{ settings.company_tagline }}{% endblock %}
+
+{% block content %}
+
+{% if sliders %}
+<section class="hero-slider" id="heroSlider">
+    {% for slide in sliders %}
+    <div class="slide {% if loop.first %}active{% endif %}"
+         style="background-image: url('{{ url_for('static', filename='uploads/' + slide.filename) }}');">
+        <div class="slide-overlay">
+            <div class="slide-content">
+                <h1>{{ slide.title or settings.hero_title }}</h1>
+                <p>{{ slide.subtitle or settings.hero_subtitle }}</p>
+                {% if slide.link %}
+                    <a href="{{ slide.link }}" class="btn btn-primary">Xem chi tiết →</a>
+                {% else %}
+                    <a href="/products" class="btn btn-primary">Xem sản phẩm</a>
+                    <a href="/contact" class="btn btn-outline" style="margin-left:10px;">Liên hệ ngay</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <button class="slider-arrow prev" onclick="changeSlide(-1)">‹</button>
+    <button class="slider-arrow next" onclick="changeSlide(1)">›</button>
+    <div class="slider-dots">
+        {% for slide in sliders %}
+        <div class="slider-dot {% if loop.first %}active{% endif %}" onclick="goToSlide({{ loop.index0 }})"></div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="stats">
+    <div class="container stats-grid">
+        <div class="stat">
+            <h3 class="counter" data-target="{{ settings.stat1_num|replace('+','') }}">{{ settings.stat1_num }}</h3>
+            <p>{{ settings.stat1_label }}</p>
+        </div>
+        <div class="stat">
+            <h3 class="counter" data-target="{{ settings.stat2_num|replace('+','') }}">{{ settings.stat2_num }}</h3>
+            <p>{{ settings.stat2_label }}</p>
+        </div>
+        <div class="stat">
+            <h3 class="counter" data-target="{{ settings.stat3_num|replace('+','') }}">{{ settings.stat3_num }}</h3>
+            <p>{{ settings.stat3_label }}</p>
+        </div>
+        <div class="stat">
+            <h3>{{ settings.stat4_num }}</h3>
+            <p>{{ settings.stat4_label }}</p>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="about">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-content">
+                <h2>Về {{ settings.company_name }}</h2>
+                <p>{{ settings.about_text }}</p>
+            </div>
+            <!-- ⭐ HIỂN THỊ ẢNH GIỚI THIỆU TỪ ADMIN -->
+            <div class="about-image" style="{% if settings.about_image %}background: none; padding: 0; box-shadow: none;{% endif %}">
+                {% if settings.about_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + settings.about_image) }}" alt="Giới thiệu" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
+                {% else %}
+                    🛗
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if products %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Sản phẩm nổi bật</h2>
+            <p>Các dòng thang máy chất lượng cao của chúng tôi</p>
+        </div>
+        <div class="products-grid">
+            {% for p in products %}
+            <a href="{{ url_for('product_detail', id=p.id) }}" class="product-card" style="text-decoration:none; color:inherit;">
+                {% if p.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + p.image) }}" alt="{{ p.name }}">
+                {% else %}
+                    <div class="product-img-placeholder">🛗</div>
+                {% endif %}
+                <div class="product-body">
+                    {% if p.category %}<span class="badge">{{ p.category }}</span>{% endif %}
+                    <h3>{{ p.name }}</h3>
+                    <p>{{ p.description[:100] if p.description }}{% if p.description and p.description|length > 100 %}...{% endif %}</p>
+                    <!-- ⭐ THÊM CHỮ LIÊN HỆ NẾU GIÁ = 0 -->
+                    <div class="product-price">
+                        {% if p.price == 0 or p.price == -1 %}Liên hệ{% else %}{{ "{:,.0f}".format(p.price) }} VNĐ{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div style="text-align:center; margin-top:40px;">
+            <a href="/products" class="btn btn-primary">Xem tất cả sản phẩm</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Slider
+let currentSlide = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.slider-dot');
+let autoSlide;
+
+function showSlide(index) {
+    if (!slides.length) return;
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    currentSlide = (index + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+}
+function changeSlide(dir) { showSlide(currentSlide + dir); resetAuto(); }
+function goToSlide(index) { showSlide(index); resetAuto(); }
+function resetAuto() {
+    clearInterval(autoSlide);
+    if (slides.length > 1) autoSlide = setInterval(() => showSlide(currentSlide + 1), 5000);
+}
+resetAuto();
+
+// Counter Animation
+document.addEventListener("DOMContentLoaded", () => {
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+    const animateCounter = (counter) => {
+        const target = +counter.getAttribute('data-target');
+        const updateCount = () => {
+            const count = +counter.innerText.replace(/[^0-9]/g, '');
+            const inc = target / speed;
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc) + '+';
+                setTimeout(updateCount, 20);
+            } else {
+                counter.innerText = target + '+';
+            }
+        };
+        updateCount();
+    };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    counters.forEach(counter => observer.observe(counter));
+});
+</script>
+{% endblock %}

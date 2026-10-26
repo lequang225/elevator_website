@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Sản phẩm - {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <div class="container"><a href="/">Trang chủ</a> › <span>Sản phẩm</span></div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Sản phẩm của chúng tôi</h2>
+            <p>Các dòng thang máy chất lượng cao</p>
+        </div>
+
+        {% if session.admin_logged_in %}
+        <div class="admin-notice">
+            ✏️ Chế độ chỉnh sửa: Nhấn vào tên, giá, mô tả để sửa. Enter = lưu, Esc = hủy.
+        </div>
+        <div style="text-align:right;margin-bottom:20px;">
+            <a href="/add_product" class="btn btn-primary">+ Thêm sản phẩm</a>
+        </div>
+        {% endif %}
+
+        {% if products %}
+        <div class="products-grid">
+            {% for p in products %}
+            <div class="product-card" data-product-id="{{ p.id }}">
+                <!-- LINK BAO QUANH ẢNH VÀ CHỮ ĐỂ CLICK VÀO XEM -->
+                <a href="{{ url_for('product_detail', id=p.id) }}">
+                    {% if p.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + p.image) }}" alt="{{ p.name }}">
+                    {% else %}
+                        <div class="product-img-placeholder">🛗</div>
+                    {% endif %}
+                </a>
+                <div class="product-body">
+                    {% if p.category %}
+                    <span class="badge"
+                          {% if session.admin_logged_in %}data-editable="true" data-field="category" data-id="{{ p.id }}"{% endif %}>{{ p.category }}</span>
+                    {% endif %}
+                    <h3 {% if session.admin_logged_in %}data-editable="true" data-field="name" data-id="{{ p.id }}"{% endif %}>
+                        <a href="{{ url_for('product_detail', id=p.id) }}" style="color:inherit; text-decoration:none;">{{ p.name }}</a>
+                    </h3>
+                    <p {% if session.admin_logged_in %}data-editable="true" data-field="description" data-id="{{ p.id }}"{% endif %}>{{ p.description or 'Chưa có mô tả' }}</p>
+                    <div class="product-price"
+                         {% if session.admin_logged_in %}data-editable="true" data-field="price" data-id="{{ p.id }}" data-type="number"{% endif %}>
+                        {{ "{:,.0f}".format(p.price) }} VNĐ
+                    </div>
+                    {% if session.admin_logged_in %}
+                    <div class="product-actions">
+                        <a href="/edit_product/{{ p.id }}" class="btn btn-sm btn-outline" style="color:#dc2626;border-color:#dc2626;">Sửa</a>
+                        <a href="/delete_product/{{ p.id }}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Xóa sản phẩm này?')">Xóa</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Chưa có sản phẩm nào.
+                {% if session.admin_logged_in %}<a href="/add_product">Thêm sản phẩm đầu tiên</a>{% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% if session.admin_logged_in %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endif %}
+{% endblock %}

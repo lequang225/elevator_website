@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Thêm sản phẩm{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
+<section class="section">
+    <div class="container form-container">
+        <h1>Thêm sản phẩm mới</h1>
+        <form method="POST" class="form card-form">
+            <div class="form-group"><label>Tên sản phẩm *</label><input type="text" name="name" required></div>
+            <div class="form-group">
+                <label>Danh mục</label>
+                <select name="category">
+                    <option value="Thang máy gia đình">Thang máy gia đình</option>
+                    <option value="Thang máy tải khách">Thang máy tải khách</option>
+                    <option value="Thang máy tải hàng">Thang máy tải hàng</option>
+                    <option value="Thang cuốn">Thang cuốn</option>
+                    <option value="Thang máy quan sát">Thang máy quan sát</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Mô tả</label><textarea name="description" rows="4"></textarea></div>
+            <div class="form-group"><label>Giá (VNĐ) *</label><input type="number" name="price" required min="0" step="1000"></div>
+
+            <div class="form-group">
+                <label>🖼️ Ảnh đại diện</label>
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <input type="hidden" name="image_filename" id="imageFilename">
+                    <div class="dropzone-content" id="dropzoneContent">
+                        <div class="dropzone-icon">📤</div>
+                        <p><strong>Kéo & thả ảnh</strong> hoặc <span class="link">chọn từ máy</span></p>
+                    </div>
+                    <div class="dropzone-preview" id="dropzonePreview" style="display:none;">
+                        <img id="previewImg">
+                        <div class="preview-actions">
+                            <button type="button" class="btn-crop" id="btnCrop">✂️ Crop</button>
+                            <button type="button" class="btn-remove-img" id="removeImg">✕ Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📸 Gallery</label>
+                <div class="gallery-dropzone" id="galleryDropzone">
+                    <input type="file" id="galleryInput" accept="image/*" multiple hidden>
+                    <div class="gallery-hint">
+                        <div class="dropzone-icon">🖼️</div>
+                        <p><strong>Kéo & thả nhiều ảnh</strong></p>
+                    </div>
+                </div>
+                <div class="gallery-preview" id="galleryPreview"></div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+                <a href="/products" class="btn btn-outline" style="color:#dc2626;border-color:#dc2626;">Hủy</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<div id="cropModal" class="crop-modal">
+    <div class="crop-modal-content">
+        <div class="crop-modal-header"><h2>✂️ Crop</h2><button type="button" class="crop-close" id="cropClose">✕</button></div>
+        <div class="crop-container"><img id="cropImage"></div>
+        <div class="crop-controls">
+            <div class="crop-ratios">
+                <button type="button" class="ratio-btn" data-ratio="NaN">Tự do</button>
+                <button type="button" class="ratio-btn active" data-ratio="1">1:1</button>
+                <button type="button" class="ratio-btn" data-ratio="1.3333">4:3</button>
+            </div>
+            <div class="crop-actions">
+                <button type="button" class="btn btn-outline" id="cropCancel" style="color:#dc2626;border-color:#dc2626;">Hủy</button>
+                <button type="button" class="btn btn-primary" id="cropApply">✂️ Crop & Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.crop-modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.85);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.crop-modal.show{display:flex}
+.crop-modal-content{background:#fff;border-radius:16px;width:100%;max-width:900px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
+.crop-modal-header{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid #e2e8f0}
+.crop-close{background:none;border:none;font-size:22px;cursor:pointer;width:36px;height:36px;border-radius:8px}
+.crop-container{flex:1;min-height:300px;max-height:60vh;background:#0f172a;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.crop-container img{max-width:100%;max-height:100%}
+.crop-controls{padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;background:#f8fafc;border-top:1px solid #e2e8f0}
+.crop-ratios,.crop-actions{display:flex;gap:8px}
+.ratio-btn{background:#fff;border:2px solid #e2e8f0;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.ratio-btn.active{background:#dc2626;color:#fff;border-color:#dc2626}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+{% endblock %}

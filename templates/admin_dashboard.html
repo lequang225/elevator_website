@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <h3>Quản lý</h3>
+        <a href="/admin" class="active">📊 Dashboard</a>
+        <a href="/admin/settings">⚙️ Cấu hình</a>
+        <a href="/admin/sliders">🖼️ Slider</a>
+        <a href="/admin/projects">🏢 Dự án</a>
+        <a href="/admin/contacts">📬 Liên hệ</a>
+        <a href="/products">📦 Sản phẩm</a>
+        {% if session.admin_role == 'superadmin' %}
+        <a href="/admin/users">👥 Người dùng</a>
+        {% endif %}
+        <a href="/admin/activity">📋 Hoạt động</a>
+        <a href="/admin/change_password">🔐 Đổi mật khẩu</a>
+    </aside>
+
+    <div class="admin-content">
+        <div class="admin-page-header">
+            <div>
+                <h1>⚙️ Bảng điều khiển</h1>
+                <p style="color:#64748b;margin-top:5px;">Xin chào, <strong>{{ session.admin_username }}</strong>!</p>
+            </div>
+        </div>
+
+        <div class="admin-stats">
+            <div class="admin-stat-card">
+                <div class="stat-icon">📦</div>
+                <div><h3>{{ total_products }}</h3><p>Sản phẩm</p></div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon">🏢</div>
+                <div><h3>{{ total_projects }}</h3><p>Dự án</p></div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon">🖼️</div>
+                <div><h3>{{ total_sliders }}</h3><p>Ảnh slider</p></div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon">📬</div>
+                <div><h3>{{ total_contacts }}</h3><p>Tin nhắn</p></div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="stat-icon">👥</div>
+                <div><h3>{{ total_users }}</h3><p>Người dùng</p></div>
+            </div>
+        </div>
+
+        <div style="background:#fff;padding:25px;border-radius:12px;margin-bottom:25px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom:15px;">⚡ Thao tác nhanh</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+                <a href="/admin/settings" class="btn btn-primary">⚙️ Cấu hình</a>
+                <a href="/admin/sliders" class="btn btn-primary">🖼️ Quản lý slider</a>
+                <a href="/admin/projects/add" class="btn btn-primary">➕ Thêm dự án</a>
+                <a href="/add_product" class="btn btn-primary">➕ Thêm sản phẩm</a>
+            </div>
+        </div>
+
+        {% if recent_contacts %}
+        <div style="background:#fff;padding:25px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom:15px;">📬 Tin nhắn gần đây</h3>
+            <div class="admin-table">
+                <table>
+                    <thead>
+                        <tr><th>Họ tên</th><th>Email</th><th>Điện thoại</th><th>Nội dung</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for c in recent_contacts %}
+                        <tr>
+                            <td><strong>{{ c.name }}</strong></td>
+                            <td>{{ c.email }}</td>
+                            <td>{{ c.phone or '—' }}</td>
+                            <td>{{ c.message[:80] }}{% if c.message|length > 80 %}...{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Dự án - {{ settings.company_name }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <div class="container"><a href="/">Trang chủ</a> › <span>Dự án</span></div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Dự án đã thực hiện</h2>
+            <p>Những công trình tiêu biểu mà chúng tôi đã hoàn thành</p>
+        </div>
+
+        {% if session.admin_logged_in %}
+        <div style="text-align:right;margin-bottom:20px;">
+            <a href="/admin/projects/add" class="btn btn-primary">+ Thêm dự án mới</a>
+        </div>
+        {% endif %}
+
+        {% if projects %}
+        <div class="projects-grid">
+            {% for p in projects %}
+            <a href="{{ url_for('project_detail', id=p.id) }}" class="project-card">
+                <div class="project-image">
+                    {% if p.cover_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + p.cover_image) }}" alt="{{ p.title }}">
+                    {% endif %}
+                    {% if p.category %}<span class="project-category">{{ p.category }}</span>{% endif %}
+                </div>
+                <div class="project-body">
+                    <h3>{{ p.title }}</h3>
+                    <div class="project-meta">
+                        {% if p.location %}<span>📍 {{ p.location }}</span>{% endif %}
+                        {% if p.year %}<span>📅 {{ p.year }}</span>{% endif %}
+                    </div>
+                    <p>{{ p.short_description or 'Dự án đã được chúng tôi thi công hoàn thiện.' }}</p>
+                    <span class="project-link">Xem chi tiết →</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Chưa có dự án nào.
+                {% if session.admin_logged_in %}<a href="/admin/projects/add">Thêm dự án đầu tiên</a>{% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
